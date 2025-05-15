@@ -16,6 +16,6 @@ export class Libro {
   @Column()
   isbn: string;
 
-  @ManyToMany(() => Biblioteca, biblioteca => biblioteca.libros)
+  @ManyToMany(() => Biblioteca, (biblioteca) => biblioteca.libros)
   bibliotecas: Biblioteca[];
 }

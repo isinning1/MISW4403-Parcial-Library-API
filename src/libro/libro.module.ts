@@ -4,6 +4,6 @@ import { LibroController } from './libro.controller';
 
 @Module({
   providers: [LibroService],
-  controllers: [LibroController]
+  controllers: [LibroController],
 })
 export class LibroModule {}

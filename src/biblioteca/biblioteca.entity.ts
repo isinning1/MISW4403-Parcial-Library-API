@@ -16,7 +16,7 @@ export class Biblioteca {
   @Column()
   horarioAtencion: string;
 
-  @ManyToMany(() => Libro, libro => libro.bibliotecas, { cascade: true })
+  @ManyToMany(() => Libro, (libro) => libro.bibliotecas, { cascade: true })
   @JoinTable()
   libros: Libro[];
 }
