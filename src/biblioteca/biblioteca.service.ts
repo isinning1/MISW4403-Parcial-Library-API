@@ -71,7 +71,7 @@ export class BibliotecaService {
 
   async findBooksFromLibrary(libraryId: number): Promise<Libro[]> {
     const biblioteca = await this.findOne(libraryId);
-    return biblioteca.libros as Libro[];
+    return biblioteca.libros;
   }
 
   async findBookFromLibrary(
@@ -79,7 +79,7 @@ export class BibliotecaService {
     bookId: number,
   ): Promise<Libro | undefined> {
     const biblioteca = await this.findOne(libraryId);
-    return (biblioteca.libros as Libro[]).find((book) => book.id === bookId);
+    return biblioteca.libros.find((book) => book.id === bookId);
   }
 
   async updateBooksFromLibrary(libraryId: number, bookIds: number[]) {
@@ -91,9 +91,7 @@ export class BibliotecaService {
 
   async deleteBookFromLibrary(libraryId: number, bookId: number) {
     const biblioteca = await this.findOne(libraryId);
-    biblioteca.libros = (biblioteca.libros as Libro[]).filter(
-      (book) => book.id !== bookId,
-    );
+    biblioteca.libros = biblioteca.libros.filter((book) => book.id !== bookId);
     return this.repo.save(biblioteca);
   }
 }

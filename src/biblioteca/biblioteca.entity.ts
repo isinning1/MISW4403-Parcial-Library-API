@@ -1,22 +1,30 @@
-// biblioteca.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
+import { Libro } from '../libro/libro.entity';
+
 @Entity()
 export class Biblioteca {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  nombre: string;
+  nombre!: string;
 
   @Column()
-  direccion: string;
+  direccion!: string;
 
   @Column()
-  ciudad: string;
+  ciudad!: string;
 
   @Column()
-  horarioAtencion: string;
+  horarioAtencion!: string;
 
   @ManyToMany(() => Libro, (libro) => libro.bibliotecas, { cascade: true })
   @JoinTable()
-  libros: Libro[];
+  libros!: Libro[];
 }
