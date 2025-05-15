@@ -1,21 +1,27 @@
-// libro.entity.ts
+// src/libro/libro.entity.ts
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { Biblioteca } from '../biblioteca/biblioteca.entity';
+
 @Entity()
 export class Libro {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  titulo: string;
+  titulo!: string;
 
   @Column()
-  autor: string;
+  autor!: string;
 
   @Column({ type: 'date' })
-  fechaPublicacion: Date;
+  fechaPublicacion!: Date;
 
   @Column()
-  isbn: string;
+  isbn!: string;
 
-  @ManyToMany(() => Biblioteca, (biblioteca) => biblioteca.libros)
-  bibliotecas: Biblioteca[];
+  @ManyToMany(
+    () => Biblioteca,
+    (biblioteca: Biblioteca): Libro[] => biblioteca.libros,
+  )
+  bibliotecas!: Biblioteca[];
 }

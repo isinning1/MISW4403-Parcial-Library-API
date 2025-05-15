@@ -1,20 +1,19 @@
 // src/libro/libro.dto.ts
-// src/libro/libro.dto.ts
 import { IsString, IsDateString, Length } from 'class-validator';
 
 export class LibroDto {
   @IsString()
   @Length(1, 100)
-  titulo: string;
+  titulo!: string;
 
   @IsString()
   @Length(1, 100)
-  autor: string;
+  autor!: string;
 
   @IsDateString()
-  fechaPublicacion: string;
+  fechaPublicacion!: string;
 
   @IsString()
   @Length(10, 20)
-  isbn: string;
+  isbn!: string;
 }
