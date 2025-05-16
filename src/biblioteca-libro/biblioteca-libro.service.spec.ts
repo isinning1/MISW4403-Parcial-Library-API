@@ -27,7 +27,7 @@ describe('BibliotecaLibroService', () => {
     };
 
     libroRepo = {
-      findOne: jest.fn(),
+      findOneBy: jest.fn(),
       findByIds: jest.fn(),
     };
 
@@ -54,8 +54,11 @@ describe('BibliotecaLibroService', () => {
 
   describe('addBookToLibrary', () => {
     it('should associate a book to a library', async () => {
-      bibliotecaRepo.findOne.mockResolvedValueOnce({ ...bibliotecaMock });
-      libroRepo.findOne.mockResolvedValueOnce(libroMock);
+      bibliotecaRepo.findOne.mockResolvedValueOnce({
+        ...bibliotecaMock,
+        libros: [],
+      });
+      libroRepo.findOneBy.mockResolvedValueOnce(libroMock);
       bibliotecaRepo.save.mockResolvedValueOnce({
         ...bibliotecaMock,
         libros: [libroMock],
@@ -74,8 +77,11 @@ describe('BibliotecaLibroService', () => {
     });
 
     it('should throw NotFoundException if libro not found', async () => {
-      bibliotecaRepo.findOne.mockResolvedValue({ ...bibliotecaMock });
-      libroRepo.findOne.mockResolvedValue(null);
+      bibliotecaRepo.findOne.mockResolvedValue({
+        ...bibliotecaMock,
+        libros: [],
+      });
+      libroRepo.findOneBy.mockResolvedValue(null);
       await expect(service.addBookToLibrary(1, 5)).rejects.toThrow(
         NotFoundException,
       );
@@ -86,7 +92,7 @@ describe('BibliotecaLibroService', () => {
         ...bibliotecaMock,
         libros: [libroMock],
       });
-      libroRepo.findOne.mockResolvedValue(libroMock);
+      libroRepo.findOneBy.mockResolvedValue(libroMock);
       await expect(service.addBookToLibrary(1, 5)).rejects.toThrow(
         BadRequestException,
       );
@@ -113,7 +119,7 @@ describe('BibliotecaLibroService', () => {
   });
 
   describe('findBookFromLibrary', () => {
-    it('should return the specific book from library', async () => {
+    it('should return specific book associated to library', async () => {
       bibliotecaRepo.findOne.mockResolvedValue({
         ...bibliotecaMock,
         libros: [libroMock],
@@ -149,7 +155,7 @@ describe('BibliotecaLibroService', () => {
       expect(result.libros[0].id).toBe(5);
     });
 
-    it('should throw BadRequestException if some books not found', async () => {
+    it('should throw BadRequestException if some book IDs not found', async () => {
       bibliotecaRepo.findOne.mockResolvedValue({ ...bibliotecaMock });
       libroRepo.findByIds.mockResolvedValue([]);
 
@@ -168,14 +174,12 @@ describe('BibliotecaLibroService', () => {
 
   describe('deleteBookFromLibrary', () => {
     it('should remove the book from the library', async () => {
-      const bibliotecaConLibro = {
+      bibliotecaRepo.findOne.mockResolvedValue({
         ...bibliotecaMock,
         libros: [libroMock],
-      };
-
-      bibliotecaRepo.findOne.mockResolvedValue(bibliotecaConLibro);
+      });
       bibliotecaRepo.save.mockResolvedValue({
-        ...bibliotecaConLibro,
+        ...bibliotecaMock,
         libros: [],
       });
 

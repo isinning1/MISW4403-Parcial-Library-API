@@ -22,21 +22,26 @@ export class BibliotecaLibroService {
     bibliotecaId: number,
     libroId: number,
   ): Promise<Biblioteca> {
+    console.log('Asociación libro a biblioteca');
+    console.log('Biblioteca ID:', typeof bibliotecaId, bibliotecaId);
+    console.log('Libro ID:', typeof libroId, libroId);
+
     const biblioteca = await this.bibliotecaRepository.findOne({
-      where: { id: bibliotecaId },
+      where: { id: Number(bibliotecaId) },
       relations: ['libros'],
     });
 
     if (!biblioteca) {
+      console.error('Biblioteca no encontrada');
       throw new NotFoundException(
         `Biblioteca con ID ${bibliotecaId} no encontrada`,
       );
     }
 
-    const libro = await this.libroRepository.findOne({
-      where: { id: libroId },
-    });
+    const libro = await this.libroRepository.findOneBy({ id: Number(libroId) });
+
     if (!libro) {
+      console.error('Libro no encontrado');
       throw new NotFoundException(`Libro con ID ${libroId} no encontrado`);
     }
 
@@ -48,12 +53,14 @@ export class BibliotecaLibroService {
     }
 
     biblioteca.libros.push(libro);
-    return this.bibliotecaRepository.save(biblioteca);
+    const resultado = await this.bibliotecaRepository.save(biblioteca);
+    console.log('Asociación realizada con éxito');
+    return resultado;
   }
 
   async findBooksFromLibrary(bibliotecaId: number): Promise<Libro[]> {
     const biblioteca = await this.bibliotecaRepository.findOne({
-      where: { id: bibliotecaId },
+      where: { id: Number(bibliotecaId) },
       relations: ['libros'],
     });
 
@@ -71,7 +78,7 @@ export class BibliotecaLibroService {
     libroId: number,
   ): Promise<Libro> {
     const libros = await this.findBooksFromLibrary(bibliotecaId);
-    const libro = libros.find((l) => l.id === libroId);
+    const libro = libros.find((l) => l.id === Number(libroId));
 
     if (!libro) {
       throw new NotFoundException(
@@ -87,7 +94,7 @@ export class BibliotecaLibroService {
     librosIds: number[],
   ): Promise<Biblioteca> {
     const biblioteca = await this.bibliotecaRepository.findOne({
-      where: { id: bibliotecaId },
+      where: { id: Number(bibliotecaId) },
       relations: ['libros'],
     });
 
@@ -97,7 +104,7 @@ export class BibliotecaLibroService {
       );
     }
 
-    const libros = await this.libroRepository.findByIds(librosIds);
+    const libros = await this.libroRepository.findByIds(librosIds.map(Number));
 
     if (libros.length !== librosIds.length) {
       throw new BadRequestException('Uno o más libros no existen');
@@ -112,7 +119,7 @@ export class BibliotecaLibroService {
     libroId: number,
   ): Promise<void> {
     const biblioteca = await this.bibliotecaRepository.findOne({
-      where: { id: bibliotecaId },
+      where: { id: Number(bibliotecaId) },
       relations: ['libros'],
     });
 
@@ -122,7 +129,9 @@ export class BibliotecaLibroService {
       );
     }
 
-    const libroAsociado = biblioteca.libros.find((l) => l.id === libroId);
+    const libroAsociado = biblioteca.libros.find(
+      (l) => l.id === Number(libroId),
+    );
 
     if (!libroAsociado) {
       throw new NotFoundException(
@@ -130,7 +139,9 @@ export class BibliotecaLibroService {
       );
     }
 
-    biblioteca.libros = biblioteca.libros.filter((l) => l.id !== libroId);
+    biblioteca.libros = biblioteca.libros.filter(
+      (l) => l.id !== Number(libroId),
+    );
     await this.bibliotecaRepository.save(biblioteca);
   }
 }
