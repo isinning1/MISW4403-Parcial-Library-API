@@ -34,7 +34,7 @@ export class BibliotecaService {
   async create(data: Partial<Biblioteca>) {
     if (data.horarioAtencion && !this.validarHorario(data.horarioAtencion)) {
       throw new BadRequestException(
-        'Horario inválido: apertura debe ser menor al cierre',
+        'Horario inválido: la hora de apertura debe ser menor a la de cierre (formato esperado: HH:MM-HH:MM)',
       );
     }
     const biblioteca = this.repo.create(data);
@@ -44,7 +44,9 @@ export class BibliotecaService {
   async update(id: number, data: Partial<Biblioteca>) {
     const biblioteca = await this.findOne(id);
     if (data.horarioAtencion && !this.validarHorario(data.horarioAtencion)) {
-      throw new BadRequestException('Horario inválido');
+      throw new BadRequestException(
+        'Horario inválido: la hora de apertura debe ser menor a la de cierre (formato esperado: HH:MM-HH:MM)',
+      );
     }
     Object.assign(biblioteca, data);
     return this.repo.save(biblioteca);
@@ -56,11 +58,21 @@ export class BibliotecaService {
   }
 
   private validarHorario(horario: string): boolean {
-    const [inicio, fin] = horario.split('-');
+    const partes = horario.split('-');
+    if (partes.length !== 2) {
+      return false;
+    }
+
+    const [inicio, fin] = partes.map((h) => h.trim());
+
+    const regexHora = /^([01]\d|2[0-3]):([0-5]\d)$/;
+    if (!regexHora.test(inicio) || !regexHora.test(fin)) {
+      return false;
+    }
+
     return inicio < fin;
   }
 
-  // Métodos de asociación
   async addBookToLibrary(libraryId: number, bookId: number) {
     const biblioteca = await this.findOne(libraryId);
     const libro = await this.libroRepo.findOne({ where: { id: bookId } });
