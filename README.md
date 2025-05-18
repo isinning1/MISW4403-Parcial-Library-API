@@ -57,6 +57,104 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+# API REST para la Gestión de Bibliotecas, Libros y sus Asociaciones
+
+Este proyecto implementa una API RESTful utilizando el framework NestJS, diseñada para gestionar bibliotecas, libros y la relación entre ambos. Se desarrolla esta solución como parte del parcial práctico del curso MISW4403 – Diseño y Construcción de APIs, cumpliendo con todos los requerimientos establecidos en el enunciado del ejercicio.
+
+## Objetivos del desarrollo
+
+El propósito de esta API es permitir operaciones CRUD completas sobre las entidades "Biblioteca" y "Libro", así como gestionar de manera estructurada las asociaciones entre ellas. También me enfoqué en aplicar validaciones sólidas, separar claramente los flujos positivos y negativos, y garantizar la cobertura de pruebas con Jest.
+
+## Tecnologías y herramientas utilizadas
+
+Durante el desarrollo se utilizaron las siguientes tecnologías:
+
+- NestJS para la construcción de la API
+- TypeORM para la capa de persistencia de datos
+- SQLite como base de datos embebida, adecuada para el entorno de pruebas
+- class-validator para la validación de datos de entrada
+- Jest como framework de pruebas unitarias
+- Postman para la creación y validación de colecciones de pruebas automatizadas
+
+## Estructura del proyecto
+
+El proyecto está organizado en tres dominios funcionales: bibliotecas, libros y la asociación entre ambos. Cada uno incluye su controlador, servicio, entidad, DTO y pruebas unitarias respectivas.
+```bash
+src/
+├── app.controller.ts
+├── app.module.ts
+├── app.service.ts
+├── biblioteca/
+│ ├── biblioteca.controller.ts
+│ ├── biblioteca.service.ts
+│ ├── biblioteca.entity.ts
+│ ├── biblioteca.dto.ts
+│ └── biblioteca.controller.spec.ts
+├── libro/
+│ ├── libro.controller.ts
+│ ├── libro.service.ts
+│ ├── libro.entity.ts
+│ ├── libro.dto.ts
+│ └── libro.controller.spec.ts
+├── biblioteca-libro/
+│ ├── biblioteca-libro.controller.ts
+│ ├── biblioteca-libro.service.ts
+│ └── biblioteca-libro.controller.spec.ts
+```
+
+
+## Instrucciones para ejecutar el proyecto
+
+### Clonación del repositorio
+
+```bash
+git clone https://github.com/tu-usuario/misw4403-parcial-library-api.git
+cd misw4403-parcial-library-api
+```
+
+## Colecciones de pruebas en Postman
+Se diseñan 3 colecciones de Postman que permiten validar cada uno de los recursos y sus interacciones, separadas por entidad:
+
+* Bibliotecas.postman_collection.json
+
+* Libros.postman_collection.json
+
+* Bibliotecas-Libros.postman_collection.json
+
+Cada colección incluye:
+
+Pruebas para operaciones válidas e inválidas
+
+Automatización de datos con scripts pre-request
+
+Verificación de respuestas con scripts tests
+
+Uso de variables de entorno para facilitar la reutilización
+
+Variables de entorno para Postman
+Estas son las variables necesarias en el entorno Postman para ejecutar todas las pruebas de forma automatizada.
+
+Se recomienda importar el archivo de entorno Postman y ejecutarlas en el orden indicado en cada carpeta.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

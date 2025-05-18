@@ -13,7 +13,7 @@ import { LibroService } from './libro.service';
 import { LibroDto } from './libro.dto';
 import { Libro } from './libro.entity';
 
-@Controller('libros')
+@Controller('books')
 export class LibroController {
   constructor(private readonly libroService: LibroService) {}
 

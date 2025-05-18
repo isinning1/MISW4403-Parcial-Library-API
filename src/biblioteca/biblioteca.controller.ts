@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { BibliotecaService } from './biblioteca.service';
 import { Biblioteca } from './biblioteca.entity';
+import { BibliotecaDto } from './biblioteca.dto';
 
 @Controller('libraries')
 export class BibliotecaController {
@@ -28,16 +29,16 @@ export class BibliotecaController {
   }
 
   @Post()
-  create(@Body() biblioteca: Partial<Biblioteca>): Promise<Biblioteca> {
-    return this.bibliotecaService.create(biblioteca);
+  create(@Body() dto: BibliotecaDto): Promise<Biblioteca> {
+    return this.bibliotecaService.create(dto);
   }
 
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() biblioteca: Partial<Biblioteca>,
+    @Body() dto: Partial<BibliotecaDto>,
   ): Promise<Biblioteca> {
-    return this.bibliotecaService.update(id, biblioteca);
+    return this.bibliotecaService.update(id, dto);
   }
 
   @Delete(':id')

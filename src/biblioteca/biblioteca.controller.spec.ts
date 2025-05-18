@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BibliotecaController } from './biblioteca.controller';
 import { BibliotecaService } from './biblioteca.service';
-import { Biblioteca } from './biblioteca.entity';
+import { BibliotecaDto } from './biblioteca.dto';
 
 describe('BibliotecaController', () => {
   let controller: BibliotecaController;
@@ -52,15 +52,20 @@ describe('BibliotecaController', () => {
     expect(service.findOne).toHaveBeenCalledWith(1);
   });
 
-  it('create() debe crear una biblioteca', async () => {
-    const dto: Partial<Biblioteca> = { nombre: 'Nueva Biblioteca' };
+  it('create() debe crear una biblioteca con DTO', async () => {
+    const dto: BibliotecaDto = {
+      nombre: 'Nueva Biblioteca',
+      direccion: 'Calle 123 #45-67',
+      ciudad: 'Bogotá',
+      horarioAtencion: '08:00-17:00',
+    };
     const result = await controller.create(dto);
     expect(result).toEqual({ id: 3, nombre: 'Nueva Biblioteca' });
     expect(service.create).toHaveBeenCalledWith(dto);
   });
 
-  it('update() debe actualizar una biblioteca', async () => {
-    const dto: Partial<Biblioteca> = { nombre: 'Actualizada' };
+  it('update() debe actualizar una biblioteca con DTO parcial', async () => {
+    const dto: Partial<BibliotecaDto> = { nombre: 'Actualizada' };
     const result = await controller.update(1, dto);
     expect(result).toEqual({ id: 1, nombre: 'Actualizada' });
     expect(service.update).toHaveBeenCalledWith(1, dto);

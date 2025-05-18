@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BibliotecaModule } from './biblioteca/biblioteca.module';
 import { LibroModule } from './libro/libro.module';
+import { BibliotecaLibroModule } from './biblioteca-libro/biblioteca-libro.module';
 
 const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'sqlite',
@@ -15,10 +16,10 @@ const typeOrmConfig: TypeOrmModuleOptions = {
 
 @Module({
   imports: [
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     TypeOrmModule.forRoot(typeOrmConfig),
     BibliotecaModule,
     LibroModule,
+    BibliotecaLibroModule,
   ],
   controllers: [AppController],
   providers: [AppService],
