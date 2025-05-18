@@ -1,0 +1,517 @@
+{
+	"info": {
+		"_postman_id": "e11bbc88-8e68-4721-bfc9-611d80eef5ec",
+		"name": "Bibliotecas",
+		"description": "Esta colección contiene los endpoints relacionados con la gestión de bibliotecas. Aquí puedes:\n\n- Crear bibliotecas válidas\n    \n- Probar validaciones con bibliotecas inválidas\n    \n- Consultar todas las bibliotecas o una por su ID\n    \n- Actualizar bibliotecas existentes\n    \n- Eliminar bibliotecas\n    \n- Validar errores al operar con IDs inexistentes\n    \n\n> ⚠️ Algunas pruebas requieren variables de entorno: \n  \n\n- `baseUrl` (ej: [http://localhost:3000](http://localhost:3000))\n    \n- `libraryId` (generada automáticamente al crear una biblioteca válida)\n    \n- `invalidId` (ej: 999, 9999, usado para pruebas negativas)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30632007",
+		"_collection_link": "https://www.postman.com/blue-station-32150/workspace/api-pp/collection/30632007-e11bbc88-8e68-4721-bfc9-611d80eef5ec?action=share&source=collection_link&creator=30632007"
+	},
+	"item": [
+		{
+			"name": "Crear una biblioteca válida",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let json = pm.response.json();",
+							"if (json && json.id) {",
+							"  pm.environment.set(\"libraryId\", json.id);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const nombres = [\r",
+							"  \"Biblioteca Central\",\r",
+							"  \"Biblioteca Nacional\",\r",
+							"  \"Biblioteca Pública de Bogotá\",\r",
+							"  \"Biblioteca Universitaria\",\r",
+							"  \"Biblioteca Infantil\",\r",
+							"  \"Biblioteca del Saber\",\r",
+							"  \"Biblioteca San Martín\",\r",
+							"  \"Biblioteca Santa María\",\r",
+							"  \"Biblioteca Los Andes\",\r",
+							"  \"Biblioteca El Bosque\"\r",
+							"];\r",
+							"\r",
+							"const nombre = nombres[Math.floor(Math.random() * nombres.length)];\r",
+							"\r",
+							"const calle = Math.floor(Math.random() * 100) + 1;\r",
+							"const carrera = Math.floor(Math.random() * 10) + 1;\r",
+							"const numero = `${calle} #${carrera}-${Math.floor(Math.random() * 50)}`;\r",
+							"\r",
+							"const ciudades = [\"Bogotá\", \"Medellín\", \"Cali\", \"Barranquilla\", \"Cartagena\"];\r",
+							"const ciudad = ciudades[Math.floor(Math.random() * ciudades.length)];\r",
+							"\r",
+							"const aperturaHora = Math.floor(Math.random() * 3) + 7; // entre 7 y 9\r",
+							"const cierreHora = aperturaHora + Math.floor(Math.random() * 5) + 1; // cierre entre 1 y 5 horas después\r",
+							"const horario = `${String(aperturaHora).padStart(2, '0')}:00-${String(cierreHora).padStart(2, '0')}:00`;\r",
+							"\r",
+							"pm.environment.set(\"nombreBiblioteca\", nombre);\r",
+							"pm.environment.set(\"direccionBiblioteca\", `Carrera ${carrera} #${numero}`);\r",
+							"pm.environment.set(\"ciudadBiblioteca\", ciudad);\r",
+							"pm.environment.set(\"horarioBiblioteca\", horario);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"{{nombreBiblioteca}}\",\n  \"direccion\": \"{{direccionBiblioteca}}\",\n  \"ciudad\": \"{{ciudadBiblioteca}}\",\n  \"horarioAtencion\": \"{{horarioBiblioteca}}\"\n}\n"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/libraries",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries"
+					]
+				},
+				"description": "Crea una biblioteca con datos válidos generados automáticamente.\n\nUsa pre-request para nombre, dirección, ciudad y horario.  \nGuarda `libraryId` en el entorno para futuras pruebas."
+			},
+			"response": []
+		},
+		{
+			"name": "Crear una biblioteca inválida",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver error 400 por datos inválidos\", function () {\r",
+							"  pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Debe incluir mensaje de validación\", function () {\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json.message).to.include(\"El horario debe estar en formato HH:MM-HH:MM (por ejemplo, 08:00-18:00)\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"Biblioteca Sin Horario\",\n  \"direccion\": \"Calle 123 #45-67\",\n  \"ciudad\": \"Medellín\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/libraries",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries"
+					]
+				},
+				"description": "Intenta crear una biblioteca omitiendo el campo `horarioAtencion`.  \nSe espera un error 400 Bad Request y que no se cree la biblioteca."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todas las bibliotecas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Devuelve lista de bibliotecas\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json).to.be.an(\"array\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries"
+					]
+				},
+				"description": "Retorna un listado de todas las bibliotecas registradas."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener una biblioteca por ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"La respuesta debe contener todos los campos de la biblioteca\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  const json = pm.response.json();\r",
+							"\r",
+							"  pm.expect(json).to.be.an(\"object\");\r",
+							"  pm.expect(json).to.have.property(\"id\");\r",
+							"  pm.expect(json).to.have.property(\"nombre\");\r",
+							"  pm.expect(json).to.have.property(\"direccion\");\r",
+							"  pm.expect(json).to.have.property(\"ciudad\");\r",
+							"  pm.expect(json).to.have.property(\"horarioAtencion\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}"
+					]
+				},
+				"description": "Consulta una biblioteca específica por su ID generado.\n\nUsa `libraryId` del entorno.  \nValida que contenga todos los campos esperados."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener una biblioteca por un ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver 404 por biblioteca inexistente\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json.message).to.include(\"no encontrada\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{invalidId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{invalidId}}"
+					]
+				},
+				"description": "Consulta una biblioteca usando un ID que no existe.\n\nUsa `invalidId` (ej: 999).  \nSe espera un error 404 con mensaje claro."
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar una biblioteca",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const nombres = [\r",
+							"  \"Biblioteca Central\",\r",
+							"  \"Biblioteca Nacional\",\r",
+							"  \"Biblioteca Pública de Medellín\",\r",
+							"  \"Biblioteca El Saber\",\r",
+							"  \"Biblioteca Moderna\",\r",
+							"  \"Biblioteca Infantil\",\r",
+							"  \"Biblioteca El Bosque\"\r",
+							"];\r",
+							"\r",
+							"const nombre = nombres[Math.floor(Math.random() * nombres.length)];\r",
+							"\r",
+							"const calle = Math.floor(Math.random() * 100) + 1;\r",
+							"const carrera = Math.floor(Math.random() * 10) + 1;\r",
+							"const direccion = `Calle ${calle} #${carrera}-${Math.floor(Math.random() * 50)}`;\r",
+							"\r",
+							"const ciudades = [\"Bogotá\", \"Medellín\", \"Cali\", \"Barranquilla\"];\r",
+							"const ciudad = ciudades[Math.floor(Math.random() * ciudades.length)];\r",
+							"\r",
+							"const aperturaHora = Math.floor(Math.random() * 3) + 7;\r",
+							"const cierreHora = aperturaHora + Math.floor(Math.random() * 5) + 1;\r",
+							"const horario = `${String(aperturaHora).padStart(2, '0')}:00-${String(cierreHora).padStart(2, '0')}:00`;\r",
+							"\r",
+							"pm.environment.set(\"nombreBiblioteca\", nombre);\r",
+							"pm.environment.set(\"direccionBiblioteca\", direccion);\r",
+							"pm.environment.set(\"ciudadBiblioteca\", ciudad);\r",
+							"pm.environment.set(\"horarioBiblioteca\", horario);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"La biblioteca fue actualizada correctamente\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  const json = pm.response.json();\r",
+							"\r",
+							"  pm.expect(json.nombre).to.eql(pm.environment.get(\"nombreBiblioteca\"));\r",
+							"  pm.expect(json.direccion).to.eql(pm.environment.get(\"direccionBiblioteca\"));\r",
+							"  pm.expect(json.ciudad).to.eql(pm.environment.get(\"ciudadBiblioteca\"));\r",
+							"  pm.expect(json.horarioAtencion).to.eql(pm.environment.get(\"horarioBiblioteca\"));\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"{{nombreBiblioteca}}\",\n  \"direccion\": \"{{direccionBiblioteca}}\",\n  \"ciudad\": \"{{ciudadBiblioteca}}\",\n  \"horarioAtencion\": \"{{horarioBiblioteca}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}"
+					]
+				},
+				"description": "Actualiza una biblioteca usando datos nuevos generados automáticamente.\n\nUsa pre-request para nuevos valores.  \nVerifica que los cambios se reflejen en la respuesta."
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar una biblioteca con ID que no existe",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const nombres = [\r",
+							"  \"Biblioteca San Lucas\",\r",
+							"  \"Biblioteca Nueva Esperanza\",\r",
+							"  \"Biblioteca de la Sabiduría\",\r",
+							"  \"Biblioteca Experimental\"\r",
+							"];\r",
+							"\r",
+							"const nombre = nombres[Math.floor(Math.random() * nombres.length)];\r",
+							"\r",
+							"const calle = Math.floor(Math.random() * 100) + 1;\r",
+							"const carrera = Math.floor(Math.random() * 10) + 1;\r",
+							"const direccion = `Calle ${calle} #${carrera}-${Math.floor(Math.random() * 50)}`;\r",
+							"\r",
+							"const ciudades = [\"Ibagué\", \"Tunja\", \"Neiva\", \"Manizales\"];\r",
+							"const ciudad = ciudades[Math.floor(Math.random() * ciudades.length)];\r",
+							"\r",
+							"const aperturaHora = Math.floor(Math.random() * 3) + 7;\r",
+							"const cierreHora = aperturaHora + Math.floor(Math.random() * 5) + 1;\r",
+							"const horario = `${String(aperturaHora).padStart(2, '0')}:00-${String(cierreHora).padStart(2, '0')}:00`;\r",
+							"\r",
+							"pm.environment.set(\"nombreBiblioteca\", nombre);\r",
+							"pm.environment.set(\"direccionBiblioteca\", direccion);\r",
+							"pm.environment.set(\"ciudadBiblioteca\", ciudad);\r",
+							"pm.environment.set(\"horarioBiblioteca\", horario);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe responder con error 404 por ID inexistente\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json.message).to.include(\"no encontrada\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"{{nombreBiblioteca}}\",\n  \"direccion\": \"{{direccionBiblioteca}}\",\n  \"ciudad\": \"{{ciudadBiblioteca}}\",\n  \"horarioAtencion\": \"{{horarioBiblioteca}}\"\n}\n"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{invalidId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{invalidId}}"
+					]
+				},
+				"description": "Prueba actualizar una biblioteca que no existe.\n\nUsa `invalidId` del entorno.  \nSe espera un 404 Not Found."
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar una biblioteca por su ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"La biblioteca fue eliminada exitosamente\", function () {\r",
+							"  pm.response.to.have.status(200, 204);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}"
+					]
+				},
+				"description": "Elimina una biblioteca creada anteriormente.\n\nUsa `libraryId`.  \nLa respuesta esperada es 204 No Content."
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar una biblioteca con un ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe responder con error 404 por biblioteca inexistente\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json.message).to.include(\"no encontrada\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{invalidId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{invalidId}}"
+					]
+				},
+				"description": "Prueba eliminar una biblioteca que no existe.\n\nUsa `invalidId`.  \nSe espera una respuesta 404."
+			},
+			"response": []
+		}
+	]
+}

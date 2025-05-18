@@ -1,0 +1,384 @@
+{
+	"info": {
+		"_postman_id": "d023b1ba-83e5-479d-b2a3-312b6b3849f7",
+		"name": "Bibliotecas-Libros",
+		"description": "Esta colección maneja la relación entre bibliotecas y libros:\n\n- Asociar libros a una biblioteca\n    \n- Consultar libros asociados o individuales\n    \n- Actualizar las asociaciones\n    \n- Eliminar asociaciones\n    \n- Validar errores cuando no existe la relación\n    \n\n> ⚠️ Variables requeridas: \n  \n\n- `libraryId`\n    \n- `bookId`\n    \n- `invalidBookId`\n    \n- `unlinkedBookId` (para prueba de no asociación)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30632007",
+		"_collection_link": "https://www.postman.com/blue-station-32150/workspace/api-pp/collection/30632007-d023b1ba-83e5-479d-b2a3-312b6b3849f7?action=share&source=collection_link&creator=30632007"
+	},
+	"item": [
+		{
+			"name": "Asociar un libro a una biblioteca",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Libro asociado correctamente a la biblioteca\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json).to.be.an(\"object\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}/books/{{bookId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}",
+						"books",
+						"{{bookId}}"
+					]
+				},
+				"description": "Asocia un libro existente a una biblioteca existente.  \nRequiere `libraryId` y `bookId`."
+			},
+			"response": []
+		},
+		{
+			"name": "Asociar un libro que no existe a una biblioteca",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver error 404 por libro inexistente\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}/books/{{invalidId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}",
+						"books",
+						"{{invalidId}}"
+					]
+				},
+				"description": "Prueba asociar un libro que no existe.  \nEspera error 404."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todos los libros que están en una biblioteca",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver un array de libros asociados\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  const libros = pm.response.json();\r",
+							"  pm.expect(libros).to.be.an(\"array\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}",
+						"books"
+					]
+				},
+				"description": "Obtiene todos los libros asociados a una biblioteca."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un libro asociado a una biblioteca",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver el libro asociado\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  const libro = pm.response.json();\r",
+							"  pm.expect(libro).to.have.property(\"id\", parseInt(pm.environment.get(\"bookId\")));\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}/books/{{bookId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}",
+						"books",
+						"{{bookId}}"
+					]
+				},
+				"description": "Consulta un libro que ya está asociado a una biblioteca.  \nVerifica que coincida con `bookId`."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un libro que no esté asociado a una biblioteca",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver error 404 por libro no asociado\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json.message).to.include(\"Libro con ID 9999 no asociado a la biblioteca\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}/books/{{unlinkedBookId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}",
+						"books",
+						"{{unlinkedBookId}}"
+					]
+				},
+				"description": "Prueba obtener un libro que no está asociado a la biblioteca.  \nEspera un error 404 con mensaje"
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar los libros asociados a una biblioteca",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Libros asociados actualizados correctamente\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json).to.be.an(\"object\");\r",
+							"  pm.expect(json.libros).to.be.an(\"array\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[{{bookId}}]"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}",
+						"books"
+					]
+				},
+				"description": "Reemplaza completamente los libros asociados a una biblioteca.  \nBody: `[{{bookId}}]`"
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar libro asociado inexistente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver error por libro inexistente en actualización\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[{{invalidBookId}}]\r\n"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}/books/{{invalidId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}",
+						"books",
+						"{{invalidId}}"
+					]
+				},
+				"description": "Envía un array con un ID de libro que no existe.  \nEspera un error 400 o 404."
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un libro asociado a una biblioteca",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Libro eliminado correctamente de la biblioteca\", function () {\r",
+							"  pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}/books/{{bookId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}",
+						"books",
+						"{{bookId}}"
+					]
+				},
+				"description": "Desasocia un libro que está vinculado a una biblioteca.  \nEspera 204 No Content."
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un libro no asociado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver error al intentar eliminar libro no asociado\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/libraries/{{libraryId}}/books/{{invalidId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"libraries",
+						"{{libraryId}}",
+						"books",
+						"{{invalidId}}"
+					]
+				},
+				"description": "Prueba eliminar un libro que **no** está vinculado. Espera 404."
+			},
+			"response": []
+		}
+	]
+}

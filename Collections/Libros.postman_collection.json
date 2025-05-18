@@ -1,0 +1,455 @@
+{
+	"info": {
+		"_postman_id": "eae9f456-60d4-4fa2-9a65-31db0d8c1d0b",
+		"name": "Libros",
+		"description": "Esta colección contiene los endpoints para la gestión de libros:\n\n- Crear libros válidos o inválidos\n    \n- Consultar libros individuales o el listado general\n    \n- Actualizar o eliminar libros\n    \n- Probar operaciones sobre IDs inexistentes\n    \n\n> ⚠️ Variables de entorno necesarias: \n  \n\n- `baseUrl` (ej: [http://localhost:3000](http://localhost:3000))\n    \n- `bookId` (guardado automáticamente)\n    \n- `invalidBookId` (ej: 9999)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30632007",
+		"_collection_link": "https://www.postman.com/blue-station-32150/workspace/api-pp/collection/30632007-eae9f456-60d4-4fa2-9a65-31db0d8c1d0b?action=share&source=collection_link&creator=30632007"
+	},
+	"item": [
+		{
+			"name": "Crear un libro válido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let json = pm.response.json();",
+							"pm.test(\"Libro creado/actualizado correctamente\", function () {",
+							"  pm.response.to.have.status(pm.request.method === 'POST' ? 201 : 200);",
+							"  pm.expect(json).to.have.property(\"id\");",
+							"  pm.expect(json.autor).to.eql(pm.environment.get(\"autorLibro\"));",
+							"  pm.expect(json.fechaPublicacion).to.eql(pm.environment.get(\"fechaPublicacion\"));",
+							"  pm.environment.set(\"bookId\", json.id);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const titulos = [\r",
+							"  \"Cien años de soledad\", \"1984\", \"Don Quijote de la Mancha\",\r",
+							"  \"La sombra del viento\", \"Rayuela\", \"Ficciones\", \"Crónica de una muerte anunciada\"\r",
+							"];\r",
+							"\r",
+							"const autores = [\r",
+							"  \"Gabriel García Márquez\", \"George Orwell\", \"Miguel de Cervantes\",\r",
+							"  \"Carlos Ruiz Zafón\", \"Julio Cortázar\", \"Jorge Luis Borges\", \"Mario Vargas Llosa\"\r",
+							"];\r",
+							"\r",
+							"const titulo = titulos[Math.floor(Math.random() * titulos.length)];\r",
+							"const autor = autores[Math.floor(Math.random() * autores.length)];\r",
+							"\r",
+							"const anio = Math.floor(Math.random() * 73) + 1950;\r",
+							"const mes = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');\r",
+							"const dia = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');\r",
+							"const fecha = `${anio}-${mes}-${dia}`;\r",
+							"\r",
+							"const isbn = `978-${Math.floor(1000000000 + Math.random() * 8999999999)}`;\r",
+							"\r",
+							"pm.environment.set(\"tituloLibro\", titulo);\r",
+							"pm.environment.set(\"autorLibro\", autor);\r",
+							"pm.environment.set(\"fechaPublicacion\", fecha);\r",
+							"pm.environment.set(\"isbn\", isbn);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"titulo\": \"{{tituloLibro}}\",\n  \"autor\": \"{{autorLibro}}\",\n  \"fechaPublicacion\": \"{{fechaPublicacion}}\",\n  \"isbn\": \"{{isbn}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				},
+				"description": "Crea un libro con datos válidos generados automáticamente (título, autor, fecha y ISBN).\n\nUsa pre-request para generar los campos.  \nGuarda `bookId` automáticamente para pruebas posteriores."
+			},
+			"response": []
+		},
+		{
+			"name": "Crear un libro inválido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver error 400 por libro inválido\", function () {\r",
+							"  pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"titulo\": \"\",\n  \"autor\": \"Autor con error\",\n  \"fechaPublicacion\": \"fecha inválida\",\n  \"isbn\": 12345\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				},
+				"description": "Prueba enviar datos incompletos o mal formateados (ISBN corto, fecha inválida).\n\nEspera un error 400 Bad Request."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todos los libros",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe retornar una lista de libros\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  pm.expect(pm.response.json()).to.be.an(\"array\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				},
+				"description": "Consulta todos los libros existentes.  \nNo requiere body ni variables.  \nValida que retorne un array."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un libro por ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver los datos del libro\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json).to.have.property(\"id\");\r",
+							"  pm.expect(json).to.have.property(\"titulo\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/books/{{bookId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"{{bookId}}"
+					]
+				},
+				"description": "Consulta un libro existente por su ID guardado en el entorno.  \nValida que la respuesta contenga los datos esperados."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un libro por un ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver 404 por libro inexistente\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"  const json = pm.response.json();\r",
+							"  pm.expect(json.message).to.include(\"no encontrado\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"titulo\": \"\",\n  \"autor\": \"Autor con error\",\n  \"fechaPublicacion\": \"fecha inválida\",\n  \"isbn\": 12345\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books/{{invalidBookId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"{{invalidBookId}}"
+					]
+				},
+				"description": "Prueba consultar un ID que no existe."
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar un libro",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const nuevosTitulos = [\r",
+							"  \"El amor en los tiempos del cólera\", \"Ensayo sobre la ceguera\", \"Pedro Páramo\",\r",
+							"  \"La ciudad y los perros\", \"La casa de los espíritus\", \"Los detectives salvajes\"\r",
+							"];\r",
+							"\r",
+							"const nuevosAutores = [\r",
+							"  \"Isabel Allende\", \"Juan Rulfo\", \"José Saramago\",\r",
+							"  \"Roberto Bolaño\", \"Mario Vargas Llosa\", \"Gabriel García Márquez\"\r",
+							"];\r",
+							"\r",
+							"const year = Math.floor(Math.random() * 73) + 1950;\r",
+							"const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');\r",
+							"const day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');\r",
+							"const fecha = `${year}-${month}-${day}`;\r",
+							"\r",
+							"const isbn = `978-${Math.floor(1000000000 + Math.random() * 8999999999)}`;\r",
+							"\r",
+							"pm.environment.set(\"tituloLibro\", nuevosTitulos[Math.floor(Math.random() * nuevosTitulos.length)]);\r",
+							"pm.environment.set(\"autorLibro\", nuevosAutores[Math.floor(Math.random() * nuevosAutores.length)]);\r",
+							"pm.environment.set(\"fechaPublicacion\", fecha);\r",
+							"pm.environment.set(\"isbn\", isbn);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Libro actualizado correctamente\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"  const json = pm.response.json();\r",
+							"  \r",
+							"  pm.expect(json.titulo).to.eql(pm.environment.get(\"tituloLibro\"));\r",
+							"  pm.expect(json.autor).to.eql(pm.environment.get(\"autorLibro\"));\r",
+							"  pm.expect(json.fechaPublicacion).to.eql(pm.environment.get(\"fechaPublicacion\"));\r",
+							"  pm.expect(json.isbn).to.eql(pm.environment.get(\"isbn\"));\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"titulo\": \"{{tituloLibro}}\",\n  \"autor\": \"{{autorLibro}}\",\n  \"fechaPublicacion\": \"{{fechaPublicacion}}\",\n  \"isbn\": \"{{isbn}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books/{{bookId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"{{bookId}}"
+					]
+				},
+				"description": "Actualiza un libro existente con nuevos datos realistas generados en pre-request.\n\nValida que los cambios estén reflejados en la respuesta."
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar un libro con ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe responder con error 404 por ID inexistente\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"titulo\": \"Libro que no existe\",\n  \"autor\": \"Autor Desconocido\",\n  \"fechaPublicacion\": \"2000-01-01\",\n  \"isbn\": \"978-0000000000\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books/{{invalidId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"{{invalidId}}"
+					]
+				},
+				"description": "Prueba actualizar un libro que no existe.  \nEspera un error 404."
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un libro por su ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe eliminar el libro correctamente\", function () {\r",
+							"  pm.response.to.have.status(200, 204);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/books/{{bookId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"{{bookId}}"
+					]
+				},
+				"description": "Elimina el libro actual."
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar un libro con un ID que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver error 404 al eliminar libro inexistente\", function () {\r",
+							"  pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/books/{{invalidId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"{{invalidId}}"
+					]
+				},
+				"description": "Prueba eliminar un libro con un ID inválido.  \nEspera error 404.\n\n{  \n\"baseUrl\": \"[http://localhost:3000\"](http://localhost:3000\"),  \n\"bookId\": \"\",  \n\"invalidBookId\": \"9999\"  \n}"
+			},
+			"response": []
+		}
+	]
+}
